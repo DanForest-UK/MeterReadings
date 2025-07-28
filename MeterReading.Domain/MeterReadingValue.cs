@@ -1,2 +1,2 @@
-﻿namespace MeterReading.Domain
-public record MeterReadValue(int Value)
+﻿namespace MeterReading.Domain;
+public record MeterReadValue(int Value);
