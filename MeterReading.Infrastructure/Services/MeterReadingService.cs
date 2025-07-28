@@ -4,12 +4,14 @@ using MeterReading.Domain;
 using MeterReading.Infrastructure.Data;
 using MeterReading.Infrastructure.Validation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Generic = System.Collections.Generic;
 
 namespace MeterReading.Infrastructure.Services
 {
@@ -20,8 +22,13 @@ namespace MeterReading.Infrastructure.Services
     public class MeterReadingService : IMeterReadingService
     {
         readonly MeterReadingContext context;
+        readonly Cache cache;
 
-        public MeterReadingService(MeterReadingContext context) => this.context = context;
+        public MeterReadingService(MeterReadingContext context, Cache cache)
+        {
+            this.context = context;
+            this.cache = cache;
+        }
 
         /// <summary>
         /// Processes meter readings from a CSV stream with all-or-nothing validation and commit
@@ -29,9 +36,8 @@ namespace MeterReading.Infrastructure.Services
         public async Task<ProcessingResult> ProcessMeterReadingsAsync(Stream csvStream)
         {
             var errors = new List<string>();
-            var validatedReadings = new List<MeterReading.Domain.MeterReading>();
-            var validAccountIds = await (from account in context.Accounts
-                                         select account.AccountId).ToHashSetAsync();
+            var validatedReadings = new List<Domain.MeterReading>();
+            var validAccountIds = cache.GetAccountIds();
 
             using var reader = new StreamReader(csvStream);
             using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);

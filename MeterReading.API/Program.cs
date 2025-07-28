@@ -1,7 +1,8 @@
-// ===== MeterReading.API/Program.cs =====
 using Microsoft.EntityFrameworkCore;
 using MeterReading.Infrastructure.Data;
-//using MeterReading.Infrastructure.Services;
+using Microsoft.AspNetCore.Mvc;
+using MeterReading.Domain;
+using MeterReading.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +15,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MeterReadingContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure services
-//builder.Services.AddScoped<IMeterReadingService, MeterReadingService>();
+// Register Cache as Singleton - IMPORTANT: Must be singleton for shared state
+builder.Services.AddSingleton<Cache>();
+
+// Configure services - Cache will be injected automatically
+builder.Services.AddScoped<IMeterReadingService, MeterReadingService>();
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -42,6 +46,12 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
+app.MapGet("/test/trigger-cache-update", async ([FromServices] Cache cache) =>
+{
+    await cache.OnAccountsModifiedAsync();
+    return Results.Ok("Cache updated.");
+});
+
 // Initialize database and seed data
 using (var scope = app.Services.CreateScope())
 {
@@ -55,6 +65,10 @@ using (var scope = app.Services.CreateScope())
 
     // Run the seeder
     await DataSeeder.SeedTestAccountsAsync(context, csvPath);
+
+    // Refresh cache after seeding data using async version
+    var cache = app.Services.GetRequiredService<Cache>();
+    await cache.OnAccountsModifiedAsync();
 }
 
 app.Run();

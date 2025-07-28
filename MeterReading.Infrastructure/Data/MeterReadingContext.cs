@@ -1,11 +1,6 @@
 ﻿using MeterReading.Domain;
 using MeterReading.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MeterReading.Infrastructure.Data
 {
@@ -14,7 +9,7 @@ namespace MeterReading.Infrastructure.Data
         public MeterReadingContext(DbContextOptions<MeterReadingContext> options) : base(options) { }
 
         public DbSet<Account> Accounts { get; set; }
-        public DbSet<MeterReading.Domain.MeterReading> MeterReadings { get; set; }
+        public DbSet<Domain.MeterReading> MeterReadings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -45,7 +40,7 @@ namespace MeterReading.Infrastructure.Data
             });
 
             // MeterReading configuration
-            modelBuilder.Entity<MeterReading.Domain.MeterReading>(entity =>
+            modelBuilder.Entity<Domain.MeterReading>(entity =>
             {
                 entity.HasKey(e => e.Id);
 

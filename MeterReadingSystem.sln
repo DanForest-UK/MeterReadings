@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeterReading.Domain", "Mete
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeterReading.Infrastructure", "MeterReading.Infrastructure\MeterReading.Infrastructure.csproj", "{C92CB993-A727-4194-B267-97D6196BC3B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeterReading.Tests", "MeterReading.Tests\MeterReading.Tests.csproj", "{B3742D62-04D2-4DD4-969E-C77863CCFE67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{C92CB993-A727-4194-B267-97D6196BC3B4}.Release|x64.Build.0 = Release|Any CPU
 		{C92CB993-A727-4194-B267-97D6196BC3B4}.Release|x86.ActiveCfg = Release|Any CPU
 		{C92CB993-A727-4194-B267-97D6196BC3B4}.Release|x86.Build.0 = Release|Any CPU
+		{B3742D62-04D2-4DD4-969E-C77863CCFE67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3742D62-04D2-4DD4-969E-C77863CCFE67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3742D62-04D2-4DD4-969E-C77863CCFE67}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B3742D62-04D2-4DD4-969E-C77863CCFE67}.Debug|x64.Build.0 = Debug|Any CPU
+		{B3742D62-04D2-4DD4-969E-C77863CCFE67}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B3742D62-04D2-4DD4-969E-C77863CCFE67}.Debug|x86.Build.0 = Debug|Any CPU
+		{B3742D62-04D2-4DD4-969E-C77863CCFE67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3742D62-04D2-4DD4-969E-C77863CCFE67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3742D62-04D2-4DD4-969E-C77863CCFE67}.Release|x64.ActiveCfg = Release|Any CPU
+		{B3742D62-04D2-4DD4-969E-C77863CCFE67}.Release|x64.Build.0 = Release|Any CPU
+		{B3742D62-04D2-4DD4-969E-C77863CCFE67}.Release|x86.ActiveCfg = Release|Any CPU
+		{B3742D62-04D2-4DD4-969E-C77863CCFE67}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
