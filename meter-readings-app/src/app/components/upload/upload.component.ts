@@ -82,7 +82,7 @@ export class UploadComponent {
 
     // Extract error message from different possible structures
     if (error.error && typeof error.error === 'string') {
-      return error.error.includes('Expected CSV format:') ? error.error : `Upload failed: ${error.error}`;
+      return error.error;
     }
 
     return error.message ? `Upload failed: ${error.message}` : 'Upload failed. Please try again.';
@@ -90,56 +90,14 @@ export class UploadComponent {
 
   private extractServerErrorMessage(error: HttpErrorResponse): string {
     if (error.error && typeof error.error === 'string') {
-      return error.error.includes('Expected CSV format:') ? error.error : `Upload failed: ${error.error}`;
+      return error.error;
     }
     return `Server validation error: ${error.statusText || 'Invalid request'}`;
   }
 
-  // Check if error message contains CSV format validation
+  // Check if error message is CSV format validation
   isValidationError(): boolean {
-    if (!this.errorMessage || typeof this.errorMessage !== 'string') {
-      return false;
-    }
-    return this.errorMessage.includes('Expected CSV format:') || 
-           this.errorMessage.includes('CSV header validation failed:') ||
-           this.errorMessage.includes('CSV contains extra data');
-  }
-
-  // Parse validation error into structured parts
-  getValidationErrorParts(): { summary: string; details: string[]; example: string } | null {
-    if (!this.isValidationError() || typeof this.errorMessage !== 'string') {
-      return null;
-    }
-
-    const parts = this.errorMessage.split('Expected CSV format:');
-    const summary = parts[0]?.replace('Upload failed: ', '').trim() || '';
-    
-    if (parts.length < 2) {
-      return { summary, details: [], example: '' };
-    }
-
-    const formatSection = parts[1];
-    const lines = formatSection.split('\n').map(line => line.trim()).filter(line => line);
-    
-    const details: string[] = [];
-    let example = '';
-    let inExample = false;
-    
-    for (const line of lines) {
-      if (line.startsWith('Example:')) {
-        inExample = true;
-        continue;
-      }
-      
-      if (inExample) {
-        if (example) example += '\n';
-        example += line;
-      } else if (line.startsWith('•')) {
-        details.push(line);
-      }
-    }
-    
-    return { summary, details, example };
+    return this.errorMessage === 'Invalid CSV format';
   }
 
   getValidationMessage(): string {

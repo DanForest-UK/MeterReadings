@@ -21,34 +21,40 @@
     </div>
 
     <div *ngIf="errorMessage" class="error-container">
+      <!-- CSV Format Validation Error -->
       <div *ngIf="isValidationError()" class="validation-error">
         <div class="error-header">
           <i class="error-icon">⚠️</i>
-          <h3>CSV Validation Failed</h3>
+          <h3>CSV Format Error</h3>
         </div>
 
         <div class="error-summary">
-          {{ getValidationErrorParts()?.summary }}
+          Your CSV file does not match the required format. Please check the following requirements:
         </div>
 
-        <div *ngIf="getValidationErrorParts()?.details?.length" class="error-requirements">
+        <div class="error-requirements">
           <h4>Requirements:</h4>
           <ul>
-            <li *ngFor="let detail of getValidationErrorParts()?.details">
-              {{ detail }}
-            </li>
+            <li>File must contain exactly 3 columns with headers: AccountId, MeterReadingDateTime, MeterReadValue</li>
+            <li>AccountId: Integer (must exist in system)</li>
+            <li>MeterReadingDateTime: Format dd/MM/yyyy HH:mm (e.g., 22/04/2019 09:24)</li>
+            <li>MeterReadValue: Integer between 0 and 99999</li>
+            <li>No extra columns or trailing commas</li>
           </ul>
         </div>
 
-        <div *ngIf="getValidationErrorParts()?.example" class="error-example">
+        <div class="error-example">
           <h4>Correct Format Example:</h4>
           <div class="csv-example">
-            <pre>{{ getValidationErrorParts()?.example }}</pre>
+            <pre>AccountId,MeterReadingDateTime,MeterReadValue
+2344,22/04/2019 09:24,1002
+2233,22/04/2019 12:25,0323
+8766,22/04/2019 12:25,3440</pre>
           </div>
         </div>
       </div>
 
-      <!-- Simple Error (fallback) -->
+      <!-- Other Errors -->
       <div *ngIf="!isValidationError()" class="simple-error">
         <div class="error-header">
           <i class="error-icon">❌</i>
