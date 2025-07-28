@@ -23,4 +23,8 @@
     <ProjectReference Include="..\MeterReading.Infrastructure\MeterReading.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+
 </Project>
