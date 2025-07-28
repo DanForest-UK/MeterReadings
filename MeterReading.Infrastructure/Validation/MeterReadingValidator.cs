@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
+using LanguageExt;
+using Generic = System.Collections.Generic;
 
 namespace MeterReading.Infrastructure.Validation
 {
@@ -18,7 +20,7 @@ namespace MeterReading.Infrastructure.Validation
         /// <summary>
         /// Validates that an account exists in the provided set of valid account IDs
         /// </summary>
-        public static ValidationResult<AccountId> ValidateAccountExists(string accountId, HashSet<AccountId> validAccountIds) =>
+        public static ValidationResult<AccountId> ValidateAccountExists(string accountId, Generic.HashSet<AccountId> validAccountIds) =>
             string.IsNullOrWhiteSpace(accountId)
                 ? ValidationResult<AccountId>.Failure("Account ID is empty")
                 : parseInt(accountId).Match(
@@ -29,13 +31,13 @@ namespace MeterReading.Infrastructure.Validation
                     None: () => ValidationResult<AccountId>.Failure($"Account {accountId} is not a valid number"));
 
         /// <summary>
-        /// Validates and parses a datetime string 
+        /// Validates and parses a datetime string, ensuring UTC kind for PostgreSQL compatibility
         /// </summary>
         public static ValidationResult<DateTime> ValidateDateTime(string dateTimeString) =>
             string.IsNullOrWhiteSpace(dateTimeString)
                 ? ValidationResult<DateTime>.Failure("DateTime is empty")
-                : parseDateTime(dateTimeString).Match(
-                    Some: ValidationResult<DateTime>.Success,
+                : ParseDateTime(dateTimeString).Match(
+                    Some: dt => ValidationResult<DateTime>.Success(DateTime.SpecifyKind(dt, DateTimeKind.Utc)),
                     None: () => ValidationResult<DateTime>.Failure($"Invalid datetime format: {dateTimeString}. Expected format: dd/MM/yyyy HH:mm"));
 
         /// <summary>
@@ -63,6 +65,20 @@ namespace MeterReading.Infrastructure.Validation
                 ? ValidationResult<Person>.Failure("Last name cannot be empty")
                 : ValidationResult<Person>.Success(new Person(firstName.Trim(), lastName.Trim()));
         }
-    }
 
+        /// <summary>
+        /// Bespoke parsing for the supported date time format
+        /// </summary>
+        private static Option<DateTime> ParseDateTime(string dateTimeString) =>
+            Try.lift(() =>
+            {
+                // Try to parse with the expected format
+                if (DateTime.TryParseExact(dateTimeString, "dd/MM/yyyy HH:mm",
+                    CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+                {
+                    return Some(result);
+                }
+                return None;
+            }).IfFail(default);
+    }
 }

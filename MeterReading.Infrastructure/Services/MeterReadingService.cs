@@ -15,7 +15,6 @@ using Generic = System.Collections.Generic;
 
 namespace MeterReading.Infrastructure.Services
 {
-
     /// <summary>
     /// Processes meter readings from a CSV stream with all-or-nothing validation
     /// </summary>
@@ -74,6 +73,7 @@ namespace MeterReading.Infrastructure.Services
                         continue;
                     }
 
+                    // Check for duplicate readings in the database
                     var existingReading = await (from reading in context.MeterReadings
                                                  where reading.AccountId == accountValidation.Value && reading.MeterReadingDateTime == dateTimeValidation.Value
                                                  select reading).FirstOrDefaultAsync();
@@ -84,7 +84,7 @@ namespace MeterReading.Infrastructure.Services
                         continue;
                     }
 
-                    var meterReading = new MeterReading.Domain.MeterReading(
+                    var meterReading = new Domain.MeterReading(
                         new MeterReadingId(0),
                         accountValidation.Value,
                         dateTimeValidation.Value,
@@ -101,7 +101,7 @@ namespace MeterReading.Infrastructure.Services
             var failedCount = errors.Count;
             var validatedCount = validatedReadings.Count;
 
-            // Only commit if there are no validation errors
+            // Only commit if there are no validation errors (all-or-nothing)
             if (errors.Count == 0)
             {
                 try
@@ -109,9 +109,11 @@ namespace MeterReading.Infrastructure.Services
                     using var transaction = await context.Database.BeginTransactionAsync();
 
                     context.MeterReadings.AddRange(validatedReadings);
+
                     await context.SaveChangesAsync();
 
                     await transaction.CommitAsync();
+
                     return new ProcessingResult(validatedCount, failedCount, validatedCount, errors.ToArray());
                 }
                 catch (Exception ex)
@@ -126,4 +128,3 @@ namespace MeterReading.Infrastructure.Services
         }
     }
 }
-

@@ -1,6 +1,8 @@
 ﻿using MeterReading.Domain;
 using MeterReading.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MeterReading.Infrastructure.Data
 {
@@ -44,12 +46,13 @@ namespace MeterReading.Infrastructure.Data
             {
                 entity.HasKey(e => e.Id);
 
-                // Configure MeterReadingId value object
+                // Configure MeterReadingId value object - force database generation
                 entity.Property(e => e.Id)
                       .HasConversion(
                           id => id.Value,
                           value => new MeterReadingId(value))
-                      .ValueGeneratedOnAdd();
+                      .ValueGeneratedOnAdd()
+                      .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore); // This forces EF to ignore the value during insert
 
                 // Configure AccountId value object
                 entity.Property(e => e.AccountId)

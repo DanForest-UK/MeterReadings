@@ -2,11 +2,17 @@
 using MeterReading.Domain;
 using MeterReading.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace MeterReading.API.Controllers;
 
+/// <summary>
+/// Controller for managing meter reading uploads and data
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Produces("application/json")]
+[Tags("Meter Readings")]
 public class MeterReadingsController : ControllerBase
 {
     private readonly IMeterReadingService meterReadingService;
@@ -16,8 +22,21 @@ public class MeterReadingsController : ControllerBase
         this.meterReadingService = meterReadingService;
     }
 
+    /// <summary>
+    /// Upload meter readings from a CSV file
+    /// </summary>
+    /// <param name="file">CSV file containing meter readings with headers: AccountId, MeterReadingDateTime, MeterReadValue</param>
+    /// <returns>Processing result with validation and commit statistics</returns>
+    /// <response code="200">File processed successfully, returns processing results</response>
+    /// <response code="400">Invalid file or validation errors</response>
+    /// <response code="500">Internal server error during processing</response>
     [HttpPost("meter-reading-uploads")]
-    public async Task<IActionResult> UploadMeterReadings(IFormFile file)
+    [ProducesResponseType(typeof(MeterReadingResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UploadMeterReadings(
+        [Required][FromForm] IFormFile file)
     {
         if (file == null || file.Length == 0)
         {
@@ -32,9 +51,16 @@ public class MeterReadingsController : ControllerBase
         try
         {
             using var stream = file.OpenReadStream();
-            var processingResult = await meterReadingService.ProcessMeterReadingsAsync(stream);
 
-            // Map infrastructure result to API DTO
+            // Validate CSV headers
+            var headerValidation = CsvHeaderValidator.ValidateHeaders(stream);
+            if (!headerValidation.IsSuccess)
+            {
+                return BadRequest(headerValidation.ErrorMessage);
+            }
+
+            var processingResult = await meterReadingService.ProcessMeterReadingsAsync(stream);
+          
             var apiResult = new MeterReadingResponse(
                 processingResult.Validated,
                 processingResult.Failed,

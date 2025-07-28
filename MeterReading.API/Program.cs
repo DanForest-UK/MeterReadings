@@ -3,13 +3,38 @@ using MeterReading.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using MeterReading.Domain;
 using MeterReading.Infrastructure.Services;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Configure Swagger/OpenAPI
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Meter Reading API",
+        Version = "v1",
+        Description = "API for managing meter reading uploads and data validation",
+        Contact = new OpenApiContact
+        {
+            Name = "Meter Reading System",
+            Email = "support@meterreading.com"
+        }
+    });
+
+    // Include XML comments if available
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
+});
 
 // Configure Entity Framework
 builder.Services.AddDbContext<MeterReadingContext>(options =>
@@ -38,7 +63,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Meter Reading API v1");
+        c.RoutePrefix = string.Empty; // Serve Swagger UI at root
+    });
 }
 
 app.UseCors("AllowAngular");
@@ -50,7 +79,10 @@ app.MapGet("/test/trigger-cache-update", async ([FromServices] Cache cache) =>
 {
     await cache.OnAccountsModifiedAsync();
     return Results.Ok("Cache updated.");
-});
+})
+.WithTags("Testing")
+.WithSummary("Trigger cache update")
+.WithDescription("Forces a refresh of the account cache for testing purposes");
 
 // Initialize database and seed data
 using (var scope = app.Services.CreateScope())

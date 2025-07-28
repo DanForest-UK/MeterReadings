@@ -25,16 +25,19 @@ namespace MeterReading.Infrastructure.Validation
         /// <summary>
         /// Creates a successful result with the given value
         /// </summary>
-        public static ValidationResult<T> Success(T value) => new(true, value, string.Empty);
+        public static ValidationResult<T> Success(T value) => 
+            new(true, value, string.Empty);
 
         /// <summary>
         /// Creates a failed result with the given error message
         /// </summary>
-        public static ValidationResult<T> Failure(string errorMessage) => new(false, default!, errorMessage);
+        public static ValidationResult<T> Failure(string errorMessage) => 
+            new(false, default!, errorMessage);
 
         /// <summary>
         /// Implicit conversion from T to Result<T>
         /// </summary>
-        public static implicit operator ValidationResult<T>(T value) => Success(value);
+        public static implicit operator ValidationResult<T>(T value) => 
+            Success(value);
     }
 }
