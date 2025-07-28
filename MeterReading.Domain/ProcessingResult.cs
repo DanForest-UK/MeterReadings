@@ -1,7 +1,8 @@
 ﻿namespace MeterReading.Domain
 {
     public record ProcessingResult(
-    int SuccessfulReadings,
-    int FailedReadings,
-    string[] Errors);
+       int Validated,
+       int Failed,
+       int Committed,
+       string[] Errors);
 }

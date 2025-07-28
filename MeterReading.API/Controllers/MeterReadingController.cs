@@ -36,10 +36,10 @@ public class MeterReadingsController : ControllerBase
 
             // Map infrastructure result to API DTO
             var apiResult = new MeterReadingResponse(
-                processingResult.SuccessfulReadings,
-                processingResult.FailedReadings,
-                processingResult.Errors
-            );
+                processingResult.Validated,
+                processingResult.Failed,
+                processingResult.Committed,
+                processingResult.Errors);
 
             return Ok(apiResult);
         }
