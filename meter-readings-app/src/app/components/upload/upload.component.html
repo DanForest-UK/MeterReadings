@@ -1,0 +1,93 @@
+<div class="upload-container">
+  <div class="upload-section">
+    <h2>Upload Meter Readings CSV</h2>
+
+    <div class="file-input">
+      <input type="file"
+             accept=".csv"
+             (change)="onFileSelected($event)"
+             #fileInput>
+
+      <button (click)="onUpload()"
+              [disabled]="!selectedFile || isUploading"
+              class="upload-btn">
+        <span *ngIf="isUploading">Uploading...</span>
+        <span *ngIf="!isUploading">Upload CSV</span>
+      </button>
+    </div>
+
+    <div *ngIf="selectedFile" class="file-name">
+      Selected: {{ selectedFile.name }}
+    </div>
+
+    <div *ngIf="errorMessage" class="error-container">
+      <div *ngIf="isValidationError()" class="validation-error">
+        <div class="error-header">
+          <i class="error-icon">⚠️</i>
+          <h3>CSV Validation Failed</h3>
+        </div>
+
+        <div class="error-summary">
+          {{ getValidationErrorParts()?.summary }}
+        </div>
+
+        <div *ngIf="getValidationErrorParts()?.details?.length" class="error-requirements">
+          <h4>Requirements:</h4>
+          <ul>
+            <li *ngFor="let detail of getValidationErrorParts()?.details">
+              {{ detail }}
+            </li>
+          </ul>
+        </div>
+
+        <div *ngIf="getValidationErrorParts()?.example" class="error-example">
+          <h4>Correct Format Example:</h4>
+          <div class="csv-example">
+            <pre>{{ getValidationErrorParts()?.example }}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simple Error (fallback) -->
+      <div *ngIf="!isValidationError()" class="simple-error">
+        <div class="error-header">
+          <i class="error-icon">❌</i>
+          <h3>Upload Failed</h3>
+        </div>
+
+        <div class="error-message">
+          {{ errorMessage }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Results -->
+  <div *ngIf="uploadResult" class="results" [ngClass]="getResultClass()">
+    <div class="status-message">{{ getStatusMessage() }}</div>
+
+    <div *ngIf="getValidationMessage()" class="validation-message">
+      {{ getValidationMessage() }}
+    </div>
+
+    <div class="stats">
+      <div class="stat">Validated: {{ uploadResult.validated }}</div>
+      <div class="stat">Failed: {{ uploadResult.failed }}</div>
+      <div class="stat">Committed: {{ uploadResult.committed }}</div>
+    </div>
+
+    <div *ngIf="uploadResult.errors && uploadResult.errors.length > 0" class="error-list">
+      <h4>Error Details:</h4>
+      <ul>
+        <li *ngFor="let error of uploadResult.errors">{{ error }}</li>
+      </ul>
+    </div>
+
+    <!-- Success actions -->
+    <div *ngIf="uploadResult.committed > 0" class="success-actions">
+      <button (click)="startNewUpload()" class="upload-btn">
+        Upload Another File
+      </button>
+    </div>
+  </div>
+</div>

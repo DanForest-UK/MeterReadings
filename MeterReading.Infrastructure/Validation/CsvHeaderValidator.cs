@@ -17,10 +17,10 @@ namespace MeterReading.Infrastructure.Services
         };
 
         private static readonly string ExpectedFormat = @"Expected CSV format:
-• File must contain exactly 3 columns with headers: AccountId, MeterReadingDateTime, MeterReadValue
-• AccountId: Integer (must exist in system)
-• MeterReadingDateTime: Format dd/MM/yyyy HH:mm (e.g., 22/04/2019 09:24)  
-• MeterReadValue: Integer between 0 and 99999
+File must contain exactly 3 columns with headers: AccountId, MeterReadingDateTime, MeterReadValue
+AccountId: Integer (must exist in system)
+MeterReadingDateTime: Format dd/MM/yyyy HH:mm (e.g., 22/04/2019 09:24)  
+MeterReadValue: Integer between 0 and 99999
 
 Example:
 AccountId,MeterReadingDateTime,MeterReadValue
