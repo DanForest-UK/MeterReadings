@@ -13,6 +13,9 @@ namespace MeterReading.Infrastructure.Data
 {
     public static class DataSeeder
     {
+        /// <summary>
+        /// Seeds test accounts from CSV file if database is empty
+        /// </summary>
         public static async Task SeedTestAccountsAsync(MeterReadingContext context, string csvFilePath)
         {
             if (context.Accounts.Any())
@@ -21,11 +24,10 @@ namespace MeterReading.Infrastructure.Data
             using var reader = new StreamReader(csvFilePath);
             using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
-            // Map CSV directly to domain entities
-            var accounts = csv.GetRecords<dynamic>().Select(record => new Account(
-                new AccountId(int.Parse(record.AccountId)),
-                new Person((string)record.FirstName, (string)record.LastName)
-            ));
+            var accounts = from record in csv.GetRecords<dynamic>()
+                           select new Account(
+                               new AccountId(int.Parse(record.AccountId)),
+                               new Person((string)record.FirstName, (string)record.LastName));
 
             context.Accounts.AddRange(accounts);
             await context.SaveChangesAsync();

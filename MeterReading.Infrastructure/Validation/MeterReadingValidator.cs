@@ -56,29 +56,21 @@ namespace MeterReading.Infrastructure.Validation
         /// <summary>
         /// Validates that person name fields are not empty and returns domain type
         /// </summary>
-        public static ValidationResult<Person> ValidatePersonName(string firstName, string lastName)
-        {
-            if (string.IsNullOrWhiteSpace(firstName))
-                return ValidationResult<Person>.Failure("First name cannot be empty");
-
-            return string.IsNullOrWhiteSpace(lastName)
-                ? ValidationResult<Person>.Failure("Last name cannot be empty")
-                : ValidationResult<Person>.Success(new Person(firstName.Trim(), lastName.Trim()));
-        }
+        public static ValidationResult<Person> ValidatePersonName(string firstName, string lastName) =>
+            string.IsNullOrWhiteSpace(firstName)
+                ? ValidationResult<Person>.Failure("First name cannot be empty")
+                : string.IsNullOrWhiteSpace(lastName)
+                    ? ValidationResult<Person>.Failure("Last name cannot be empty")
+                    : ValidationResult<Person>.Success(new Person(firstName.Trim(), lastName.Trim()));
 
         /// <summary>
-        /// Bespoke parsing for the supported date time format
+        /// Parses datetime string using the expected format
         /// </summary>
-        private static Option<DateTime> ParseDateTime(string dateTimeString) =>
+        static Option<DateTime> ParseDateTime(string dateTimeString) =>
             Try.lift(() =>
-            {
-                // Try to parse with the expected format
-                if (DateTime.TryParseExact(dateTimeString, "dd/MM/yyyy HH:mm",
-                    CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
-                {
-                    return Some(result);
-                }
-                return None;
-            }).IfFail(default);
+                DateTime.TryParseExact(dateTimeString, "dd/MM/yyyy HH:mm",
+                    CultureInfo.InvariantCulture, DateTimeStyles.None, out var result)
+                    ? Some(result)
+                    : None).IfFail(default);
     }
 }

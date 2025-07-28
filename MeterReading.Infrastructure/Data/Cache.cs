@@ -13,25 +13,28 @@ namespace MeterReading.Infrastructure.Data
 {
     public class Cache
     {
-        private readonly IServiceProvider serviceProvider;
+        readonly IServiceProvider serviceProvider;
 
         /// <summary>
         /// Thread safe atomic account cache
         /// </summary>
-        readonly Atom<Generic.HashSet<AccountId>> accountIds = 
+        readonly Atom<Generic.HashSet<AccountId>> accountIds =
             Atom(new Generic.HashSet<AccountId>());
 
-        public Cache(IServiceProvider serviceProvider)
-        {
+        /// <summary>
+        /// Initializes a new instance of the Cache class
+        /// </summary>
+        public Cache(IServiceProvider serviceProvider) =>
             this.serviceProvider = serviceProvider;
-            // Initialize the Atom with an empty HashSet
-        }
 
+        /// <summary>
+        /// Gets the current set of account IDs from cache
+        /// </summary>
         public Generic.HashSet<AccountId> GetAccountIds() =>
             accountIds.Value;
 
         /// <summary>
-        /// Rebuild account ID cache when accounts modified - async version
+        /// Rebuilds account ID cache when accounts are modified
         /// </summary>
         public async Task OnAccountsModifiedAsync()
         {
@@ -40,17 +43,15 @@ namespace MeterReading.Infrastructure.Data
                 using var scope = serviceProvider.CreateScope();
                 var context = scope.ServiceProvider.GetRequiredService<MeterReadingContext>();
 
-                var accounts = await context.Accounts
-                    .Select(account => account.AccountId)
-                    .ToListAsync();
+                var accounts = await (from account in context.Accounts
+                                      select account.AccountId).ToListAsync();
 
                 accountIds.Swap(_ => accounts.ToHashSet());
             }
             catch (Exception ex)
             {
-                // Log error if you have logging configured
                 Console.WriteLine($"Failed to refresh cache: {ex.Message}");
             }
-        }     
+        }
     }
 }

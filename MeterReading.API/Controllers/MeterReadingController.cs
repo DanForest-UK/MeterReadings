@@ -15,12 +15,13 @@ namespace MeterReading.API.Controllers;
 [Tags("Meter Readings")]
 public class MeterReadingsController : ControllerBase
 {
-    private readonly IMeterReadingService meterReadingService;
+    readonly IMeterReadingService meterReadingService;
 
-    public MeterReadingsController(IMeterReadingService meterReadingService)
-    {
+    /// <summary>
+    /// Initializes a new instance of the MeterReadingsController
+    /// </summary>
+    public MeterReadingsController(IMeterReadingService meterReadingService) =>
         this.meterReadingService = meterReadingService;
-    }
 
     /// <summary>
     /// Upload meter readings from a CSV file
@@ -39,28 +40,21 @@ public class MeterReadingsController : ControllerBase
         [Required][FromForm] IFormFile file)
     {
         if (file == null || file.Length == 0)
-        {
             return BadRequest("No file uploaded");
-        }
 
         if (!file.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
-        {
             return BadRequest("Only CSV files are allowed");
-        }
 
         try
         {
             using var stream = file.OpenReadStream();
 
-            // Validate CSV headers
             var headerValidation = CsvHeaderValidator.ValidateHeaders(stream);
             if (!headerValidation.IsSuccess)
-            {
                 return BadRequest(headerValidation.ErrorMessage);
-            }
 
             var processingResult = await meterReadingService.ProcessMeterReadingsAsync(stream);
-          
+
             var apiResult = new MeterReadingResponse(
                 processingResult.Validated,
                 processingResult.Failed,

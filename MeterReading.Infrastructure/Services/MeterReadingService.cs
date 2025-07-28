@@ -4,14 +4,7 @@ using MeterReading.Domain;
 using MeterReading.Infrastructure.Data;
 using MeterReading.Infrastructure.Validation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Generic = System.Collections.Generic;
 
 namespace MeterReading.Infrastructure.Services
 {
@@ -23,6 +16,9 @@ namespace MeterReading.Infrastructure.Services
         readonly MeterReadingContext context;
         readonly Cache cache;
 
+        /// <summary>
+        /// Initializes a new instance of the MeterReadingService
+        /// </summary>
         public MeterReadingService(MeterReadingContext context, Cache cache)
         {
             this.context = context;
@@ -40,11 +36,8 @@ namespace MeterReading.Infrastructure.Services
 
             using var reader = new StreamReader(csvStream);
             using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-
-            var records = csv.GetRecords<dynamic>();
-
             // First pass: validate all records without committing
-            foreach (var record in records)
+            foreach (var record in csv.GetRecords<dynamic>())
             {
                 try
                 {
@@ -73,9 +66,9 @@ namespace MeterReading.Infrastructure.Services
                         continue;
                     }
 
-                    // Check for duplicate readings in the database
                     var existingReading = await (from reading in context.MeterReadings
-                                                 where reading.AccountId == accountValidation.Value && reading.MeterReadingDateTime == dateTimeValidation.Value
+                                                 where reading.AccountId == accountValidation.Value &&
+                                                       reading.MeterReadingDateTime == dateTimeValidation.Value
                                                  select reading).FirstOrDefaultAsync();
 
                     if (existingReading != null)
@@ -84,13 +77,11 @@ namespace MeterReading.Infrastructure.Services
                         continue;
                     }
 
-                    var meterReading = new Domain.MeterReading(
+                    validatedReadings.Add(new Domain.MeterReading(
                         new MeterReadingId(0),
                         accountValidation.Value,
                         dateTimeValidation.Value,
-                        meterValueValidation.Value);
-
-                    validatedReadings.Add(meterReading);
+                        meterValueValidation.Value));
                 }
                 catch (Exception ex)
                 {
@@ -101,30 +92,28 @@ namespace MeterReading.Infrastructure.Services
             var failedCount = errors.Count;
             var validatedCount = validatedReadings.Count;
 
-            // Only commit if there are no validation errors (all-or-nothing)
-            if (errors.Count == 0)
+            return errors.Count == 0
+                ? await CommitValidatedReadings(validatedReadings, validatedCount, failedCount)
+                : new ProcessingResult(validatedCount, failedCount, 0, errors.ToArray());
+        }
+
+        /// <summary>
+        /// Commits validated readings to the database within a transaction
+        /// </summary>
+        async Task<ProcessingResult> CommitValidatedReadings(List<Domain.MeterReading> validatedReadings, int validatedCount, int failedCount)
+        {
+            try
             {
-                try
-                {
-                    using var transaction = await context.Database.BeginTransactionAsync();
-
-                    context.MeterReadings.AddRange(validatedReadings);
-
-                    await context.SaveChangesAsync();
-
-                    await transaction.CommitAsync();
-
-                    return new ProcessingResult(validatedCount, failedCount, validatedCount, errors.ToArray());
-                }
-                catch (Exception ex)
-                {
-                    // Database save failed - nothing was committed due to transaction rollback
-                    return new ProcessingResult(validatedCount, 1, 0, $"Database save failed: {ex.Message}".Cons().ToArray());
-                }
+                using var transaction = await context.Database.BeginTransactionAsync();
+                context.MeterReadings.AddRange(validatedReadings);
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return new ProcessingResult(validatedCount, failedCount, validatedCount, Array.Empty<string>());
             }
-
-            // Validation failed - nothing committed
-            return new ProcessingResult(validatedCount, failedCount, 0, errors.ToArray());
+            catch (Exception ex)
+            {
+                return new ProcessingResult(validatedCount, 1, 0, new[] { $"Database save failed: {ex.Message}" });
+            }
         }
     }
 }
