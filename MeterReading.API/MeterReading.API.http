@@ -1,0 +1,6 @@
+@MeterReading.API_HostAddress = http://localhost:5121
+
+GET {{MeterReading.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
