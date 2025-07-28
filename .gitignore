@@ -1,0 +1,200 @@
+.vs/
+# .NET Core / .NET 8
+bin/
+obj/
+out/
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.suo
+*.cache
+*.dll
+*.exe
+*.pdb
+*.swp
+*.tmp
+*.temp
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+*.code-workspace
+
+# Rider
+.idea/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Entity Framework Migrations (if you want to ignore)
+# Migrations/
+
+# NuGet
+*.nupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Angular / Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+.angular/
+.sass-cache/
+connect.lock
+coverage/
+libpeerconnection.log
+testem.log
+typings/
+
+# Angular build outputs
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Dependencies
+/node_modules
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# AWS
+.aws/
+
+# Docker
+.dockerignore
+Dockerfile*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Application specific
+appsettings.Development.json
+appsettings.Production.json
+*.Development.json
+*.Production.json
+
+# CSV test files (if you don't want to commit them)
+# *.csv
+
+# Sensitive files
+connectionStrings.json
+secrets.json
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# User-specific files (MonoDevelop/Xamarin Studio)
+*.userprefs
+
+# Mono auto generated files
+mono_crash.*
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Webpack generated files
+wwwroot/dist/
+
+# Azure Functions
+bin
+obj
+appsettings.json
+local.settings.json
+.vscode
