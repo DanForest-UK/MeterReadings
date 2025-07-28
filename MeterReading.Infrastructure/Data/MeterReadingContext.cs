@@ -14,7 +14,7 @@ namespace MeterReading.Infrastructure.Data
         public MeterReadingContext(DbContextOptions<MeterReadingContext> options) : base(options) { }
 
         public DbSet<Account> Accounts { get; set; }
-        public DbSet<Domain.MeterReading> MeterReadings { get; set; }
+        public DbSet<MeterReading.Domain.MeterReading> MeterReadings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,15 +29,15 @@ namespace MeterReading.Infrastructure.Data
                           accountId => accountId.Value,
                           value => new AccountId(value));
 
-                // Configure PersonName value object
+                // Configure Person value object
                 entity.OwnsOne(e => e.Person, person =>
                 {
-                    person.Property(n => n.FirstName)
+                    person.Property(p => p.FirstName)
                         .HasColumnName("FirstName")
                         .IsRequired()
                         .HasMaxLength(100);
 
-                    person.Property(n => n.LastName)
+                    person.Property(p => p.LastName)
                         .HasColumnName("LastName")
                         .IsRequired()
                         .HasMaxLength(100);
@@ -45,7 +45,7 @@ namespace MeterReading.Infrastructure.Data
             });
 
             // MeterReading configuration
-            modelBuilder.Entity<Domain.MeterReading>(entity =>
+            modelBuilder.Entity<MeterReading.Domain.MeterReading>(entity =>
             {
                 entity.HasKey(e => e.Id);
 
