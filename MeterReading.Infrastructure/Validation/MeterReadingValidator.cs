@@ -1,4 +1,5 @@
 ﻿using MeterReading.Domain;
+using MeterReading.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,7 +14,7 @@ using Generic = System.Collections.Generic;
 namespace MeterReading.Infrastructure.Validation
 {
     /// <summary>
-    /// Provides validation methods for meter reading data using domain types
+    /// Provides validation methods for meter reading data using domain types and database constraints
     /// </summary>
     public static class MeterReadingValidator
     {
@@ -41,7 +42,7 @@ namespace MeterReading.Infrastructure.Validation
                     None: () => ValidationResult<DateTime>.Failure($"Invalid datetime format: {dateTimeString}. Expected format: dd/MM/yyyy HH:mm"));
 
         /// <summary>
-        /// Validates that a meter read value is within the allowed range and returns domain type
+        /// Validates that a meter read value is within the allowed range 
         /// </summary>
         public static ValidationResult<MeterReadValue> ValidateMeterReadValue(string meterValue) =>
             string.IsNullOrWhiteSpace(meterValue)
@@ -54,18 +55,36 @@ namespace MeterReading.Infrastructure.Validation
                     None: () => ValidationResult<MeterReadValue>.Failure($"Meter read value {meterValue} is not a valid number"));
 
         /// <summary>
-        /// Validates that person name fields are not empty and returns domain type
+        /// Validates that person name fields are not empty, within database length constraints, and returns domain type
         /// </summary>
-        public static ValidationResult<Person> ValidatePersonName(string firstName, string lastName) =>
-            string.IsNullOrWhiteSpace(firstName)
-                ? ValidationResult<Person>.Failure("First name cannot be empty")
-                : string.IsNullOrWhiteSpace(lastName)
-                    ? ValidationResult<Person>.Failure("Last name cannot be empty")
-                    : ValidationResult<Person>.Success(new Person(firstName.Trim(), lastName.Trim()));
+        public static ValidationResult<Person> ValidatePersonName(string firstName, string lastName)
+        {
+            // Check for null or empty values
+            if (string.IsNullOrWhiteSpace(firstName))
+                return ValidationResult<Person>.Failure("First name cannot be empty");
+
+            if (string.IsNullOrWhiteSpace(lastName))
+                return ValidationResult<Person>.Failure("Last name cannot be empty");
+
+            // Trim whitespace for validation
+            var trimmedFirstName = firstName.Trim();
+            var trimmedLastName = lastName.Trim();
+
+            // Validate length constraints to match database schema
+            if (trimmedFirstName.Length > MeterReadingContext.MAX_NAME_LENGTH)
+                return ValidationResult<Person>.Failure($"First name cannot exceed {MeterReadingContext.MAX_NAME_LENGTH} characters. Current length: {trimmedFirstName.Length}");
+
+            if (trimmedLastName.Length > MeterReadingContext.MAX_NAME_LENGTH)
+                return ValidationResult<Person>.Failure($"Last name cannot exceed {MeterReadingContext.MAX_NAME_LENGTH} characters. Current length: {trimmedLastName.Length}");
+
+            return ValidationResult<Person>.Success(new Person(trimmedFirstName, trimmedLastName));
+        }
 
         /// <summary>
         /// Parses datetime string using the expected format
         /// </summary>
+        /// <param name="dateTimeString">The datetime string to parse</param>
+        /// <returns>Option containing parsed DateTime if successful, None if parsing fails</returns>
         static Option<DateTime> ParseDateTime(string dateTimeString) =>
             Try.lift(() =>
                 DateTime.TryParseExact(dateTimeString, "dd/MM/yyyy HH:mm",

@@ -1,6 +1,7 @@
 ﻿using MeterReading.API.DTOs;
 using MeterReading.Domain;
 using MeterReading.Infrastructure.Services;
+using MeterReading.Infrastructure.Validation.MeterReading.Infrastructure.Logging;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
@@ -36,8 +37,7 @@ public class MeterReadingsController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     [Consumes("multipart/form-data")]
-    public async Task<IActionResult> UploadMeterReadings(
-        [Required][FromForm] IFormFile file)
+    public async Task<IActionResult> UploadMeterReadings(IFormFile file)
     {
         if (file == null || file.Length == 0)
             return BadRequest("No file uploaded");
@@ -65,7 +65,9 @@ public class MeterReadingsController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"Error processing file: {ex.Message}");
+            ExceptionLogger.LogException(ex);
+            return StatusCode(500, $"Error processing file, please contact support");
+            
         }
     }
 }

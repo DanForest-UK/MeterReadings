@@ -8,24 +8,32 @@ using System.Text;
 using System.Threading.Tasks;
 using Generic = System.Collections.Generic;
 using static LanguageExt.Prelude;
+using MeterReading.Infrastructure.Validation.MeterReading.Infrastructure.Logging;
 
 namespace MeterReading.Infrastructure.Data
 {
+    /// <summary>
+    /// In memory cache - currently just account ids
+    /// </summary>
     public class Cache
     {
-        readonly IServiceProvider serviceProvider;
-
-        /// <summary>
-        /// Thread safe atomic account cache
-        /// </summary>
-        readonly Atom<Generic.HashSet<AccountId>> accountIds =
-            Atom(new Generic.HashSet<AccountId>());
-
         /// <summary>
         /// Initializes a new instance of the Cache class
         /// </summary>
         public Cache(IServiceProvider serviceProvider) =>
             this.serviceProvider = serviceProvider;
+
+        /// <summary>
+        /// Service provider for providing the db context
+        /// </summary>
+        readonly IServiceProvider serviceProvider;
+
+        /// <summary>
+        /// Thread safe synchronous atomic account cache
+        /// </summary>
+        readonly Atom<Generic.HashSet<AccountId>> accountIds =
+            Atom(new Generic.HashSet<AccountId>());
+               
 
         /// <summary>
         /// Gets the current set of account IDs from cache
@@ -50,7 +58,7 @@ namespace MeterReading.Infrastructure.Data
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to refresh cache: {ex.Message}");
+                ExceptionLogger.LogException(ex);
             }
         }
     }

@@ -15,6 +15,7 @@ namespace MeterReading.Infrastructure.Data
     {
         /// <summary>
         /// Seeds test accounts from CSV file if database is empty
+        /// No error handling, for dev purposes only
         /// </summary>
         public static async Task SeedTestAccountsAsync(MeterReadingContext context, string csvFilePath)
         {

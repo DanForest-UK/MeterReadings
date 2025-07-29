@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace MeterReading.Domain
 {
+    /// <summary>
+    /// Interface for dependency injection for meter reading service
+    /// </summary>
     public interface IMeterReadingService
     {
         Task<ProcessingResult> ProcessMeterReadingsAsync(Stream csvStream);

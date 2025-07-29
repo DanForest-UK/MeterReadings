@@ -36,6 +36,7 @@ namespace MeterReading.Infrastructure.Services
 
             using var reader = new StreamReader(csvStream);
             using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
             // First pass: validate all records without committing
             foreach (var record in csv.GetRecords<dynamic>())
             {

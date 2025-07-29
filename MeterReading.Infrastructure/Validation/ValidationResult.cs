@@ -11,10 +11,24 @@ namespace MeterReading.Infrastructure.Validation
     /// </summary>
     public record ValidationResult<T>
     {
+        /// <summary>
+        /// Was the validation succesful
+        /// </summary>
         public bool IsSuccess { get; init; }
+
+        /// <summary>
+        /// The validated/parsed value
+        /// </summary>
         public T Value { get; init; } = default!;
+
+        /// <summary>
+        /// The error message if it failed
+        /// </summary>
         public string ErrorMessage { get; init; } = string.Empty;
 
+        /// <summary>
+        /// Ctor
+        /// </summary>
         ValidationResult(bool isSuccess, T value, string errorMessage)
         {
             IsSuccess = isSuccess;

@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 using MeterReading.Infrastructure.Validation;
 using System.Globalization;
+using static LanguageExt.Prelude;
 
 namespace MeterReading.Infrastructure.Services
 {
@@ -9,6 +10,9 @@ namespace MeterReading.Infrastructure.Services
     /// </summary>
     public static class CsvHeaderValidator
     {
+        /// <summary>
+        /// Expected CSV headers
+        /// </summary>
         static readonly string[] ExpectedHeaders = new[]
         {
             "AccountId",
@@ -38,8 +42,7 @@ namespace MeterReading.Infrastructure.Services
                     return ValidationResult<string[]>.Failure("Invalid CSV format");
 
                 var actualHeaders = (from h in csv.HeaderRecord
-                                     let trimmed = h?.Trim()
-                                     where !string.IsNullOrEmpty(trimmed)
+                                     let trimmed = h?.Trim()                                    
                                      select trimmed).ToArray();
 
                 var missingHeaders = (from expected in ExpectedHeaders
@@ -53,19 +56,16 @@ namespace MeterReading.Infrastructure.Services
                 if (missingHeaders.Any() || extraHeaders.Any())
                     return ValidationResult<string[]>.Failure("Invalid CSV format");
 
-                int rowNumber = 1;
                 while (csv.Read())
                 {
-                    rowNumber++;
-
                     if (csv.Parser.Count > ExpectedHeaders.Length)
                     {
                         var extraValues = (from i in Enumerable.Range(ExpectedHeaders.Length, csv.Parser.Count - ExpectedHeaders.Length)
                                            let extraValue = csv.Parser[i]?.Trim()
                                            where !string.IsNullOrEmpty(extraValue)
-                                           select $"'{extraValue}'").ToList();
+                                           select unit).Any();
 
-                        if (extraValues.Any())
+                        if (extraValues)
                             return ValidationResult<string[]>.Failure("Invalid CSV format");
                     }
                 }
