@@ -3,6 +3,7 @@ using LanguageExt;
 using MeterReading.Domain;
 using MeterReading.Infrastructure.Data;
 using MeterReading.Infrastructure.Validation;
+using MeterReading.Infrastructure.Validation.MeterReading.Infrastructure.Logging;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
@@ -86,7 +87,8 @@ namespace MeterReading.Infrastructure.Services
                 }
                 catch (Exception ex)
                 {
-                    errors.Add($"Error processing record: {ex.Message}");
+                    ExceptionLogger.LogException(ex);
+                    errors.Add("Error processing record, please contact support");
                 }
             }
 
@@ -113,7 +115,8 @@ namespace MeterReading.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                return new ProcessingResult(validatedCount, 1, 0, new[] { $"Database save failed: {ex.Message}" });
+                ExceptionLogger.LogException(ex);
+                return new ProcessingResult(validatedCount, 1, 0, new[] { $"Database save failed, please contact support" });
             }
         }
     }
