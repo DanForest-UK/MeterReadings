@@ -29,10 +29,11 @@ MeterReading.Infrastructure/ # Data access and external services
 
 MeterReading.Tests/        # Unit tests
 
-
+```
 ### Frontend (Angular 17)
 
 ```
+
 meter-readings-app/
 ├── src/
 │   ├── app/
@@ -56,6 +57,7 @@ meter-readings-app/
 ### Data Validation
 - **CSV Format**: Validates headers, column count, and structure
 - **Account Validation**: Ensures account exists in the system
+- **Name Validation**: Ensures name and surname have values and not longer than DB column max
 - **Date Validation**: Enforces dd/MM/yyyy HH:mm format
 - **Meter Reading Validation**: Values must be 0-99999
 - **Duplicate Detection**: Prevents duplicate readings for same account/datetime
@@ -156,7 +158,7 @@ dotnet test
 ### Caching
 - In-memory account cache for fast validation
 - Automatic cache refresh when accounts are modified
-- Thread-safe atomic operations using LanguageExt
+- Thread-safe atomic operations
 
 ### Error Handling
 - Functional error handling with `ValidationResult<T>`
@@ -164,8 +166,8 @@ dotnet test
 - Transaction rollback on validation failures
 
 ### Domain-Driven Design
-- Rich domain models with value objects
-- Clear separation between domain and infrastructure
+- Domain models with value objects
+- Separation between domain and infrastructure
 - Immutable records for data integrity
 
 ## Configuration
@@ -187,8 +189,7 @@ dotnet test
 
 ### Database
 1. Update connection string for production
-2. Run migrations: `dotnet ef database update`
-3. Seed test data if needed
+2. Run API to create database and seed test data
 
 ### API
 1. Build: `dotnet build --configuration Release`
